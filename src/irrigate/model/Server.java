@@ -33,33 +33,41 @@ public class Server {
         initUsers();
     }
     
-    private void initUsers(){
+    private void loadUsersFromDB(){
         // Open a database connection
         // (create a new database if it doesn't exist yet):
         EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
         EntityManager em = emf.createEntityManager();
  
-        // Store 1000 Point objects in the database:
-       em.getTransaction().begin();        
-        em.createQuery("DELETE FROM User u").executeUpdate();
-        em.getTransaction().commit();    
+        TypedQuery<User> query = em.createQuery("SELECT u FROM User u", User.class);
+        users = new ArrayList(query.getResultList());
         
-        users = new ArrayList<User>();
-        TypedQuery<User> query =
-            em.createQuery("SELECT u FROM User u", User.class);
-        List<User> results = query.getResultList();
-        for (User u : results) {
-            users.add(u);
-        }
-        
-
-        
-        
-        
-        // Close the database connection:
         em.close();
         emf.close();
+
+    }
+    
+    private void clearUsersFromDB(){
+        // Open a database connection
+        // (create a new database if it doesn't exist yet):
+        EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
+        EntityManager em = emf.createEntityManager();
+ 
+        // Code for clearing the User table:
+        em.getTransaction().begin();        
+        em.createQuery("DELETE FROM User u").executeUpdate();
+        em.getTransaction().commit();    
+
+       
+        em.close();
+        emf.close();        
+    }
+    
+    private void initUsers(){
+        
+        this.loadUsersFromDB();
         
         // If DB is empty init from file:
         if(users.isEmpty()){
