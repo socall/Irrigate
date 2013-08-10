@@ -66,8 +66,10 @@ public class Server {
     }
     
     private void initUsers(){
-        
+ 
+        this.clearUsersFromDB();
         this.loadUsersFromDB();
+        
         
         // If DB is empty init from file:
         if(users.isEmpty()){
@@ -83,7 +85,7 @@ public class Server {
     
     
         //Need some rework.
-        private void initUsersFromFile(){
+    private void initUsersFromFile(){
         String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
         FileReader reader = null;
         try {
@@ -100,7 +102,7 @@ public class Server {
             while (st.hasMoreTokens()) {
                 data.add(st.nextToken());
             }
-            if(!data.isEmpty()){
+            if(data.size() >= 4){
                 User user = new User(data.get(0), data.get(1), Integer.parseInt(data.get(2)), UserType.values()[Integer.parseInt(data.get(3)) - 1]);
                 user.save();
                 users.add(user);
