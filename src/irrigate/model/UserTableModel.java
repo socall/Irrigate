@@ -5,15 +5,16 @@
 package irrigate.model;
 
 import java.util.ArrayList;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.AbstractListModel;
+import javax.swing.ComboBoxModel;
 
 /**
  *
  * @author ofer
  */
-public class UserTableModel extends AbstractTableModel{
+public class UserTableModel  extends AbstractListModel implements ComboBoxModel{
     
-    private String [] columnNames = {"firstname", "lastname", "id", "type"};
+   // private String [] columnNames = {"firstname", "lastname", "id", "type"};
     
     private ArrayList<User> users_data;
     
@@ -21,38 +22,27 @@ public class UserTableModel extends AbstractTableModel{
         users_data = ud;
     }
 
+
     @Override
-    public int getRowCount() {
-        return users_data.size();
+    public int getSize() {
+        return users_data.size(); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public int getColumnCount() {
-        return columnNames.length;
+    public Object getElementAt(int i) {
+        return users_data.get(i).firstname + " " + users_data.get(i).lastname;
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        User my_user = users_data.get(rowIndex);
-        
-        switch(columnIndex){
-            case 0:
-                return my_user.firstname;
-            case 1:
-                return my_user.lastname;
-            case 2:
-                return my_user.id;
-            case 3:
-                return my_user.type.toString();
-            default:
-                throw new UnsupportedOperationException("Not supported column!");    
-        }
-        
+    public void setSelectedItem(Object o) {
+        return;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     @Override
-    public String getColumnName(int col){
-        return columnNames[col];
+    public Object getSelectedItem() {
+        return users_data.get(0).firstname;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

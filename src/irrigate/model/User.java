@@ -12,7 +12,7 @@ import javax.persistence.*;
  * @author ofer
  */
 @Entity
-public class User {
+public class User extends saveable{
     @Id @GeneratedValue
     int id;
     
@@ -29,21 +29,21 @@ public class User {
         type = _type;
     }
     
-    public void save(){ 
-        //Technical mamabo-jambo:
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
-        EntityManager em = emf.createEntityManager();
-        
-        em.getTransaction().begin();
-
-        //Save user to database:
-        em.persist(this);
-        em.getTransaction().commit();
-        
-        // Close the database connection:
-        em.close();
-        emf.close();
-    }
+//    public void save(){ 
+//        //Technical mamabo-jambo:
+//        EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
+//        EntityManager em = emf.createEntityManager();
+//        
+//        em.getTransaction().begin();
+//
+//        //Save user to database:
+//        em.persist(this);
+//        em.getTransaction().commit();
+//        
+//        // Close the database connection:
+//        em.close();
+//        emf.close();
+//    }
     
    @Override
    public String toString() {

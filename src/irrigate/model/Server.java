@@ -12,8 +12,8 @@ import javax.persistence.*;
 import java.util.*;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.AbstractListModel;
+import javax.swing.ComboBoxModel;
 
 
 /**
@@ -25,12 +25,18 @@ public class Server {
     private ArrayList<Component> components;
     private ArrayList<User> users;
     private UserTableModel usersTable;
+    private compListModel compList;
     private User active_user = null;
     private ArrayList<CropType> crop_types;
     
     
     private Server() {
         initUsers();
+        initComp();
+    }
+    
+    public AbstractListModel getCompModel(){
+        return compList;
     }
     
     private void loadUsersFromDB(){
@@ -47,8 +53,25 @@ public class Server {
         emf.close();
 
     }
+
     
-    private void clearUsersFromDB(){
+    private void loadCompFromDB(){
+        // Open a database connection
+        // (create a new database if it doesn't exist yet):
+        EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
+        EntityManager em = emf.createEntityManager();
+ 
+        TypedQuery<Component> query = em.createQuery("SELECT u FROM Component u", Component.class);
+        components = new ArrayList(query.getResultList());
+        
+        em.close();
+        emf.close();
+
+    }
+
+    
+    private void clearFromDB(String class_name){
         // Open a database connection
         // (create a new database if it doesn't exist yet):
         EntityManagerFactory emf =
@@ -57,7 +80,7 @@ public class Server {
  
         // Code for clearing the User table:
         em.getTransaction().begin();        
-        em.createQuery("DELETE FROM User u").executeUpdate();
+        em.createQuery("DELETE FROM " + class_name + " u").executeUpdate();
         em.getTransaction().commit();    
 
        
@@ -65,9 +88,8 @@ public class Server {
         emf.close();        
     }
     
-    private void initUsers(){
- 
-        this.clearUsersFromDB();
+    private void initUsers(){ 
+        //this.clearUsersFromDB("User");
         this.loadUsersFromDB();
         
         
@@ -78,15 +100,29 @@ public class Server {
         }
         
         usersTable = new UserTableModel(users);
-        
- 
+    }
 
+    private void initComp(){
+ 
+        this.clearFromDB("Component");
+        this.loadCompFromDB();
+        
+        
+        // If DB is empty init from file:
+        if(components.isEmpty()){
+            initCompFromFile();
+            System.out.println("sadasd");
+        }
+        
+        this.compList = new compListModel(this.components);
     }
     
     
         //Need some rework.
     private void initUsersFromFile(){
-        String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
+        String dir = System.getProperty("user.dir");
+        String fileName = dir + "/staff2013.txt";
+        //String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
         FileReader reader = null;
         try {
             reader = new FileReader(fileName);
@@ -112,10 +148,46 @@ public class Server {
         in.close();
     }
     
+            //Need some rework.
+    private void initCompFromFile(){
+        String dir = System.getProperty("user.dir");
+        String fileName = dir + "/irrComp.txt";
+        //String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
+        FileReader reader = null;
+        try {
+            reader = new FileReader(fileName);
+        } catch (FileNotFoundException ex) {
+           // Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Scanner in = new Scanner(reader);
+        StringTokenizer st;
+        in.nextLine();
+        while (in.hasNextLine()) {
+            String line = in.nextLine();
+            st = new StringTokenizer(line);
+            ArrayList<String> data = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                data.add(st.nextToken());
+            }
+            if(data.size() >= 1){
+                Component comp = new Component(Integer.parseInt(data.get(0)));
+                comp.save();
+                components.add(comp);
+            }
+        }
+
+        in.close();
+    }
+    
     public static Server getInstance() {
         return ServerHolder.INSTANCE;
     }
-    
+
+    public ComboBoxModel getUserModel() {
+        return usersTable;
+    }
+
+
     private static class ServerHolder {
 
         private static final Server INSTANCE = new Server();
