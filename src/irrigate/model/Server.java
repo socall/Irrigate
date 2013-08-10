@@ -84,7 +84,8 @@ public class Server {
     
         //Need some rework.
         private void initUsersFromFile(){
-        String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
+        String dir = System.getProperty("user.dir");
+        String fileName = dir + "/staff2013.txt";
         FileReader reader = null;
         try {
             reader = new FileReader(fileName);
