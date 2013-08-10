@@ -10,6 +10,11 @@ import java.util.ArrayList;
 
 import javax.persistence.*;
 import java.util.*;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
@@ -36,38 +41,11 @@ public class Server {
         EntityManager em = emf.createEntityManager();
  
         // Store 1000 Point objects in the database:
-        em.getTransaction().begin();
-//        for (int i = 0; i < 1000; i++) {
-//            Point p = new Point(i, i);
-//            em.persist(p);
-//        }
-//        System.out.println("sadsas");
-//        
-//        User nu;
-//        nu = new User("Olivia", "Dunham", 11342, UserType.WORKER);
-//        em.persist(nu);
-//        nu = new User("John", "Nash", 13416, UserType.MANAGER);
-//        em.persist(nu);
-//        nu = new User("Alen", "Dilon", 54421, UserType.ACCOUNTENT);
-//        em.persist(nu);
-//        nu = new User("Nina", "Sharp", 62654, UserType.WORKER);
-//        em.persist(nu);
-//        nu = new User("Walter", "Bishop", 14711, UserType.WORKER);
-//        em.persist(nu);
-//
-//        em.getTransaction().commit();
- 
-//        // Find the number of Point objects in the database:
-//        Query q1 = em.createQuery("SELECT COUNT(p) FROM Point p");
-//        System.out.println("Total Points: " + q1.getSingleResult());
-// 
-//        // Find the average X value:
-//        Query q2 = em.createQuery("SELECT AVG(p.x) FROM Point p");
-//        System.out.println("Average X: " + q2.getSingleResult());
- 
-        // Retrieve all the Point objects from the database:
-        users = new ArrayList<User>();
+       em.getTransaction().begin();        
+        em.createQuery("DELETE FROM User u").executeUpdate();
+        em.getTransaction().commit();    
         
+        users = new ArrayList<User>();
         TypedQuery<User> query =
             em.createQuery("SELECT u FROM User u", User.class);
         List<User> results = query.getResultList();
@@ -75,12 +53,53 @@ public class Server {
             users.add(u);
         }
         
-        usersTable = new UserTableModel(users);
+
         
- 
+        
+        
         // Close the database connection:
         em.close();
         emf.close();
+        
+        // If DB is empty init from file:
+        if(users.isEmpty()){
+            initUsersFromFile();
+            System.out.println("sadasd");
+        }
+        
+        usersTable = new UserTableModel(users);
+        
+ 
+
+    }
+    
+    
+        //Need some rework.
+        private void initUsersFromFile(){
+        String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
+        FileReader reader = null;
+        try {
+            reader = new FileReader(fileName);
+        } catch (FileNotFoundException ex) {
+           // Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Scanner in = new Scanner(reader);
+        StringTokenizer st;
+        while (in.hasNextLine()) {
+            String line = in.nextLine();
+            st = new StringTokenizer(line);
+            ArrayList<String> data = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                data.add(st.nextToken());
+            }
+            if(!data.isEmpty()){
+                User user = new User(data.get(0), data.get(1), Integer.parseInt(data.get(2)), UserType.values()[Integer.parseInt(data.get(3)) - 1]);
+                user.save();
+                users.add(user);
+            }
+        }
+
+        in.close();
     }
     
     public static Server getInstance() {

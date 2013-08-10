@@ -29,6 +29,22 @@ public class User {
         type = _type;
     }
     
+    public void save(){ 
+        //Technical mamabo-jambo:
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
+        EntityManager em = emf.createEntityManager();
+        
+        em.getTransaction().begin();
+
+        //Save user to database:
+        em.persist(this);
+        em.getTransaction().commit();
+        
+        // Close the database connection:
+        em.close();
+        emf.close();
+    }
+    
    @Override
    public String toString() {
        return String.format("User[%s %s, id: %d, type: %s]", firstname, lastname, id, type.toString());
