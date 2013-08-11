@@ -12,14 +12,17 @@ import javax.swing.ComboBoxModel;
  *
  * @author ofer
  */
-public class UserTableModel  extends AbstractListModel implements ComboBoxModel{
+public class UserListModel extends AbstractListModel implements ComboBoxModel{
     
    // private String [] columnNames = {"firstname", "lastname", "id", "type"};
     
     private ArrayList<User> users_data;
+    private String selected;
     
-    public UserTableModel(ArrayList<User> ud){
+    
+    public UserListModel(ArrayList<User> ud){
         users_data = ud;
+        selected = users_data.get(0).firstname + " " + users_data.get(0).lastname;
     }
 
 
@@ -35,13 +38,14 @@ public class UserTableModel  extends AbstractListModel implements ComboBoxModel{
 
     @Override
     public void setSelectedItem(Object o) {
-        return;
+        //return;
+        selected = (String)o;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public Object getSelectedItem() {
-        return users_data.get(0).firstname;
+        return selected;//.firstname + " " + selected.lastname;
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

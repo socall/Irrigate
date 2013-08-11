@@ -14,20 +14,22 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+import javax.swing.table.DefaultTableModel;
 
 
 /**
  *
  * @author ofer
  */
-public class Server {
+public class Server implements Model{
     
     private ArrayList<Component> components;
     private ArrayList<User> users;
-    private UserTableModel usersTable;
+    private UserListModel usersTable;
     private compListModel compList;
     private User active_user = null;
     private ArrayList<CropType> crop_types;
+    private DefaultTableModel cropTypeTable;
     
     
     private Server() {
@@ -35,10 +37,25 @@ public class Server {
         initComp();
     }
     
+    
+    //--------------------------------------------------//
+    //                  MODEL methods implementation    //
+    //--------------------------------------------------//
+    @Override
     public AbstractListModel getCompModel(){
         return compList;
     }
     
+    @Override
+    public ComboBoxModel getUserModel() {
+        return usersTable;
+    }
+    //--------------------------------------------------//
+    
+    
+    
+    
+    //---------------Load from DB (to be refactored)---------------------//
     private void loadUsersFromDB(){
         // Open a database connection
         // (create a new database if it doesn't exist yet):
@@ -69,6 +86,22 @@ public class Server {
         emf.close();
 
     }
+    
+    private void loadCropTypeFromDB(){
+        // Open a database connection
+        // (create a new database if it doesn't exist yet):
+        EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("$objectdb/db/irrig.odb");
+        EntityManager em = emf.createEntityManager();
+ 
+        TypedQuery<CropType> query = em.createQuery("SELECT u FROM CropType u", CropType.class);
+        crop_types = new ArrayList(query.getResultList());
+        
+        em.close();
+        emf.close();
+
+    }
+    //---------------------------------------------------//
 
     
     private void clearFromDB(String class_name){
@@ -88,6 +121,8 @@ public class Server {
         emf.close();        
     }
     
+    
+    //------------------Init Stuff (to be refactored)-----------------------//
     private void initUsers(){ 
         //this.clearUsersFromDB("User");
         this.loadUsersFromDB();
@@ -99,7 +134,7 @@ public class Server {
             System.out.println("sadasd");
         }
         
-        usersTable = new UserTableModel(users);
+        usersTable = new UserListModel(users);
     }
 
     private void initComp(){
@@ -114,8 +149,27 @@ public class Server {
             System.out.println("sadasd");
         }
         
+
         this.compList = new compListModel(this.components);
     }
+    
+    private void initCropType(){
+ 
+        //this.clearFromDB("CropType");
+        this.loadCompFromDB();
+        
+        
+        // If DB is empty init from file:
+        if(crop_types.isEmpty()){
+            initCompFromFile();
+            //System.out.println("sadasd");
+        }
+        
+
+        //this.compList = new compListModel(this.components);
+    }
+    
+    //----------------------------------------------------------------//
     
     
         //Need some rework.
@@ -179,12 +233,41 @@ public class Server {
         in.close();
     }
     
+        private void initCropTypeFromFile(){
+        String dir = System.getProperty("user.dir");
+        String fileName = dir + "/irrComp.txt";
+        //String fileName = "/Users/ofer/NetBeansProjects/Irrigate/staff2013.txt";
+        FileReader reader = null;
+        try {
+            reader = new FileReader(fileName);
+        } catch (FileNotFoundException ex) {
+           // Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Scanner in = new Scanner(reader);
+        StringTokenizer st;
+        in.nextLine();
+        while (in.hasNextLine()) {
+            String line = in.nextLine();
+            st = new StringTokenizer(line);
+            ArrayList<String> data = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                data.add(st.nextToken());
+            }
+            if(data.size() >= 1){
+                Component comp = new Component(Integer.parseInt(data.get(0)));
+                comp.save();
+                components.add(comp);
+            }
+        }
+
+        in.close();
+    }
+    
+        
+        
+    //--------------Singleton Stuff-----------------------//    
     public static Server getInstance() {
         return ServerHolder.INSTANCE;
-    }
-
-    public ComboBoxModel getUserModel() {
-        return usersTable;
     }
 
 
@@ -192,4 +275,6 @@ public class Server {
 
         private static final Server INSTANCE = new Server();
     }
+    
+    //----------------------------------------------//
 }

@@ -4,6 +4,10 @@
  */
 package irrigate.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 
 
 
@@ -11,7 +15,9 @@ package irrigate.model;
  *
  * @author ofer
  */
-public class CropType {
+@Entity
+public class CropType extends saveable{
+    @Id @GeneratedValue
     private int id;
     private String name;
     private Season season;

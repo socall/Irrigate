@@ -4,11 +4,11 @@
  */
 package irrigate.controller;
 
+import irrigate.model.Model;
 import irrigate.model.Server;
 import irrigate.view.ViewFrame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ComboBoxModel;
 
 /**
  *
@@ -22,10 +22,10 @@ public class Controller {
     Controller(){
         model = Server.getInstance();
         
-        view = new ViewFrame();
+        view = new ViewFrame(model);
         view.setVisible(true);
 
-        view.setUserList(model.getUserModel());
+        //view.setUserList(model.getUserModel());
         
         //Set Listner for Components Map view:
         ActionListener mapViewListener = new ActionListener() {

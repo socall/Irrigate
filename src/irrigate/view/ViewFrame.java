@@ -6,16 +6,24 @@ package irrigate.view;
 
 import java.awt.CardLayout;
 import javax.swing.*;
-
+import irrigate.model.Model;
 /**
  *
  * @author cyril
  */
 public class ViewFrame extends javax.swing.JFrame {
 
+    
+    private Model my_model;
     /**
      * Creates new form ViewFrame
      */
+    public ViewFrame(Model _model) {
+        initComponents();
+        my_model = _model;
+        this.setUserList(my_model.getUserModel());   
+    }
+    
     public ViewFrame() {
         initComponents();
     }
